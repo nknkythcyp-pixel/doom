@@ -7,7 +7,7 @@ import axios from 'axios'
 
 // ── Créer une instance Axios avec l'URL de base du backend ──
 const api = axios.create({
-  baseURL: 'http://localhost:5000/api',
+  baseURL: 'https://doom-ech3.onrender.com/api',
   headers: {
     'Content-Type': 'application/json',
   },

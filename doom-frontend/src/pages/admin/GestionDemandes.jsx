@@ -1,9 +1,9 @@
 // ============================================
 // GESTIONDEMANDES.JSX
-// ✅ Panneau latéral "Notes techniques" du technicien
-// ✅ Notification admin quand notes sauvegardées (via backend)
+// ✅ Grand écran : identique à l'original (tableau HTML natif)
+// ✅ Petit écran : responsive amélioré
+// ✅ Panneau latéral Notes techniques
 // ✅ Recherche, pagination, filtres statut
-// ✅ Responsive mobile / tablette / desktop
 // ============================================
 
 import { useState, useEffect, useCallback } from 'react'
@@ -104,7 +104,6 @@ function PanneauDetail({ demande, onFermer }) {
 
   return (
     <>
-      {/* Overlay */}
       <div
         onClick={onFermer}
         style={{
@@ -116,8 +115,6 @@ function PanneauDetail({ demande, onFermer }) {
           animation:'fadeIn 0.2s ease',
         }}
       />
-
-      {/* Panneau */}
       <div style={{
         position:'fixed', top:0, right:0, bottom:0,
         width:'min(480px, 100vw)',
@@ -132,7 +129,6 @@ function PanneauDetail({ demande, onFermer }) {
         fontFamily:"'DM Sans','Inter',sans-serif",
         overflowY:'auto',
       }}>
-
         {/* Header panneau */}
         <div style={{
           padding:'18px 20px',
@@ -160,27 +156,23 @@ function PanneauDetail({ demande, onFermer }) {
 
         {/* Corps panneau */}
         <div style={{ padding:'20px', display:'flex', flexDirection:'column', gap:16, flex:1 }}>
-
-          {/* Statut */}
           <span style={{ alignSelf:'flex-start', fontSize:11, fontWeight:700, padding:'5px 13px', borderRadius:50, background:config.fond, color:config.couleur, border:`1px solid ${config.bordure}`, display:'inline-flex', alignItems:'center', gap:6 }}>
             <span style={{ width:6, height:6, borderRadius:'50%', background:config.dot }} />
             {config.label}
           </span>
 
-          {/* Infos client */}
           <div style={{ background:'rgba(255,255,255,0.78)', borderRadius:16, overflow:'hidden', border:'1px solid rgba(190,215,255,0.45)', boxShadow:'0 2px 10px rgba(20,70,160,0.04)' }}>
             <div style={{ padding:'11px 16px', borderBottom:'1px solid rgba(190,215,255,0.3)', background:'rgba(255,255,255,0.55)', display:'flex', alignItems:'center', gap:8 }}>
               <Info size={13} strokeWidth={2} color="#3a6aaa" />
               <span style={{ fontSize:12, fontWeight:800, color:'#0d2a5c' }}>Informations</span>
             </div>
-
             {[
-              { icone:UserCheck, label:'Client',    val:`${demande.client_prenom} ${demande.client_nom}` },
-              { icone:Phone,     label:'Téléphone', val:demande.client_telephone || '—' },
-              { icone:CatIcon,   label:'Service',   val:demande.service_nom },
-              { icone:MapPin,    label:'Lieu',      val:demande.lieu === 'boutique' ? 'En boutique' : demande.adresse || 'À domicile' },
-              { icone:Calendar,  label:'Date',      val:dateAffichee },
-              { icone:AlertCircle, label:'Urgence', val:demande.urgence?.charAt(0).toUpperCase() + demande.urgence?.slice(1) },
+              { icone:UserCheck,   label:'Client',    val:`${demande.client_prenom} ${demande.client_nom}` },
+              { icone:Phone,       label:'Téléphone', val:demande.client_telephone || '—' },
+              { icone:CatIcon,     label:'Service',   val:demande.service_nom },
+              { icone:MapPin,      label:'Lieu',      val:demande.lieu === 'boutique' ? 'En boutique' : demande.adresse || 'À domicile' },
+              { icone:Calendar,    label:'Date',      val:dateAffichee },
+              { icone:AlertCircle, label:'Urgence',   val:demande.urgence?.charAt(0).toUpperCase() + demande.urgence?.slice(1) },
             ].map((row, i, arr) => {
               const Icn = row.icone
               return (
@@ -195,7 +187,6 @@ function PanneauDetail({ demande, onFermer }) {
             })}
           </div>
 
-          {/* Description */}
           {demande.description && (
             <div style={{ background:'rgba(255,255,255,0.78)', borderRadius:16, overflow:'hidden', border:'1px solid rgba(190,215,255,0.45)' }}>
               <div style={{ padding:'11px 16px', borderBottom:'1px solid rgba(190,215,255,0.3)', background:'rgba(255,255,255,0.55)', display:'flex', alignItems:'center', gap:8 }}>
@@ -206,7 +197,6 @@ function PanneauDetail({ demande, onFermer }) {
             </div>
           )}
 
-          {/* Technicien assigné */}
           {demande.technicien_nom && (
             <div style={{ display:'flex', alignItems:'center', gap:12, background:'rgba(16,185,129,0.07)', border:'1px solid rgba(16,185,129,0.22)', borderRadius:14, padding:'12px 16px' }}>
               <div style={{ width:38, height:38, borderRadius:'50%', background:'linear-gradient(135deg,#10b981,#34d399)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:13, fontWeight:800, color:'#fff', flexShrink:0 }}>
@@ -219,7 +209,6 @@ function PanneauDetail({ demande, onFermer }) {
             </div>
           )}
 
-          {/* ✅ NOTES TECHNIQUES */}
           <div style={{ background:'rgba(255,255,255,0.78)', borderRadius:16, overflow:'hidden', border: notes ? '1.5px solid rgba(29,110,245,0.3)' : '1px solid rgba(190,215,255,0.45)', boxShadow: notes ? '0 4px 16px rgba(29,110,245,0.08)' : '0 2px 10px rgba(20,70,160,0.04)' }}>
             <div style={{ padding:'11px 16px', borderBottom:'1px solid rgba(190,215,255,0.3)', background: notes ? 'rgba(29,110,245,0.06)' : 'rgba(255,255,255,0.55)', display:'flex', alignItems:'center', gap:8 }}>
               <StickyNote size={13} strokeWidth={2} color={ notes ? '#1d6ef5' : '#3a6aaa'} />
@@ -230,7 +219,6 @@ function PanneauDetail({ demande, onFermer }) {
                 </span>
               )}
             </div>
-
             <div style={{ padding:'14px 16px' }}>
               {chargement ? (
                 <div style={{ display:'flex', alignItems:'center', gap:8, color:'#7a9cc5', fontSize:12 }}>
@@ -254,7 +242,6 @@ function PanneauDetail({ demande, onFermer }) {
               )}
             </div>
           </div>
-
         </div>
       </div>
     </>
@@ -379,6 +366,37 @@ export default function GestionDemandes() {
 
   return (
     <div style={{ fontFamily:"'DM Sans','Inter',-apple-system,sans-serif", background:'linear-gradient(145deg,#b8d4f0 0%,#cfe3f8 35%,#dceeff 65%,#edf5ff 100%)', minHeight:'100vh', padding:'16px', boxSizing:'border-box' }}>
+
+      <style>{`
+        @keyframes spin          { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
+        @keyframes apparaitre    { from{opacity:0;transform:translateX(32px) scale(0.95)} to{opacity:1;transform:translateX(0) scale(1)} }
+        @keyframes glisserDroite { from{opacity:0;transform:translateX(40px)} to{opacity:1;transform:translateX(0)} }
+        @keyframes fadeIn        { from{opacity:0} to{opacity:1} }
+
+        /* ── Labels filtres : masqués sur petit écran ── */
+        .gd-filtre-label { display:inline; }
+        @media (max-width: 860px) { .gd-filtre-label { display:none; } }
+
+        /* ── Labels boutons actions : masqués sur petit écran ── */
+        .gd-btn-label { display:inline; }
+        @media (max-width: 1100px) { .gd-btn-label { display:none; } }
+
+        /* ── Colonnes tableau : masquées progressivement ── */
+        /* col-cat, col-date, col-urgence, col-tech = colonnes optionnelles */
+        .gd-col-cat, .gd-col-date, .gd-col-urgence, .gd-col-tech { }
+
+        @media (max-width: 1100px) {
+          .gd-col-cat  { display:none; }
+          .gd-col-date { display:none; }
+        }
+        @media (max-width: 860px) {
+          .gd-col-urgence { display:none; }
+        }
+        @media (max-width: 600px) {
+          .gd-col-tech { display:none; }
+        }
+      `}</style>
+
       <div style={{ maxWidth:1380, margin:'0 auto', background:'rgba(240,247,255,0.70)', borderRadius:28, backdropFilter:'blur(24px)', WebkitBackdropFilter:'blur(24px)', border:'1px solid rgba(255,255,255,0.88)', boxShadow:'0 8px 40px rgba(20,70,160,0.09)', overflow:'hidden' }}>
 
         {/* ══ TOPBAR ══ */}
@@ -420,7 +438,7 @@ export default function GestionDemandes() {
                   <button key={f.val} onClick={() => setFiltreStatut(f.val)}
                     style={{ display:'flex', alignItems:'center', gap:6, padding:'7px 14px', borderRadius:50, border:`1.5px solid ${isA ? '#1d6ef5' : 'rgba(190,215,255,0.55)'}`, background:isA ? 'rgba(29,110,245,0.08)' : 'rgba(255,255,255,0.66)', color:isA ? '#1d6ef5' : '#5a7aaa', fontSize:12, fontWeight:700, cursor:'pointer', fontFamily:'inherit', transition:'all 0.18s' }}>
                     <Icn size={12} strokeWidth={2.2} />
-                    <span className="filtre-label">{f.label}</span>
+                    <span className="gd-filtre-label">{f.label}</span>
                     <span style={{ background:isA ? '#1d6ef5' : 'rgba(190,215,255,0.38)', color:isA ? '#fff' : '#5a7aaa', fontSize:10, fontWeight:800, padding:'1px 7px', borderRadius:50 }}>{f.count}</span>
                   </button>
                 )
@@ -453,20 +471,25 @@ export default function GestionDemandes() {
             {totalPages > 1 && <span style={{ fontSize:11, color:'#7a9cc5', fontWeight:600 }}>Page {page} / {totalPages}</span>}
           </div>
 
-          {/* ══ TABLEAU ══ */}
+          {/* ══ TABLEAU — structure HTML native, identique à l'original ══ */}
           <div style={{ background:'rgba(255,255,255,0.76)', borderRadius:20, overflow:'hidden', border:'1px solid rgba(190,215,255,0.45)', boxShadow:'0 3px 18px rgba(20,70,160,0.04)' }}>
             <div style={{ overflowX:'auto' }}>
               <table style={{ width:'100%', borderCollapse:'collapse', minWidth:720 }}>
                 <thead>
                   <tr style={{ background:'rgba(190,215,255,0.14)' }}>
-                    {['#','Client','Service','Catégorie','Date','Urgence','Technicien','Statut','Actions'].map((col,i) => (
-                      <th key={i} style={{ padding:'11px 14px', textAlign:'left', fontSize:10, fontWeight:700, color:'#7a9cc5', textTransform:'uppercase', letterSpacing:'0.6px', borderBottom:'1px solid rgba(190,215,255,0.25)', whiteSpace:'nowrap' }}>{col}</th>
-                    ))}
+                    <th style={thStyle}>#</th>
+                    <th style={thStyle}>Client</th>
+                    <th className="gd-col-cat"     style={thStyle}>Catégorie</th>
+                    <th className="gd-col-date"    style={thStyle}>Date</th>
+                    <th className="gd-col-urgence" style={thStyle}>Urgence</th>
+                    <th className="gd-col-tech"    style={thStyle}>Technicien</th>
+                    <th style={thStyle}>Statut</th>
+                    <th style={thStyle}>Actions</th>
                   </tr>
                 </thead>
                 <tbody>
                   {demandesPage.length === 0 && (
-                    <tr><td colSpan={9} style={{ padding:48, textAlign:'center' }}>
+                    <tr><td colSpan={8} style={{ padding:48, textAlign:'center' }}>
                       <PackageOpen size={32} strokeWidth={1.5} color="#7a9cc5" style={{ marginBottom:10 }} />
                       <p style={{ fontSize:13, color:'#5a7aaa', margin:0 }}>
                         {recherche ? `Aucun résultat pour "${recherche}"` : 'Aucune demande dans cette catégorie'}
@@ -500,26 +523,24 @@ export default function GestionDemandes() {
                           </div>
                         </td>
 
-                        <td style={{ padding:'13px 14px', fontSize:12, color:'#5a7aaa', maxWidth:130, overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{demande.service_nom}</td>
-
-                        <td style={{ padding:'13px 14px' }}>
+                        <td className="gd-col-cat" style={{ padding:'13px 14px' }}>
                           <span style={{ display:'inline-flex', alignItems:'center', gap:5, fontSize:10.5, fontWeight:700, padding:'4px 10px', borderRadius:6, background:cc.bg, color:cc.text, border:`1px solid ${cc.border}`, whiteSpace:'nowrap' }}>
                             <CatIcon size={11} strokeWidth={2.3} />
                             {demande.service_categorie || '—'}
                           </span>
                         </td>
 
-                        <td style={{ padding:'13px 14px', fontSize:11.5, color:'#7a9cc5', whiteSpace:'nowrap' }}>
+                        <td className="gd-col-date" style={{ padding:'13px 14px', fontSize:11.5, color:'#7a9cc5', whiteSpace:'nowrap' }}>
                           {new Date(demande.date_creation).toLocaleDateString('fr-FR')}
                         </td>
 
-                        <td style={{ padding:'13px 14px' }}>
+                        <td className="gd-col-urgence" style={{ padding:'13px 14px' }}>
                           <span style={{ fontSize:10, fontWeight:700, padding:'3px 10px', borderRadius:50, background:isUrgent ? 'rgba(245,158,11,0.12)' : 'rgba(100,140,200,0.1)', color:isUrgent ? '#b45309' : '#4a6a9e', border:`1px solid ${isUrgent ? 'rgba(245,158,11,0.3)' : 'rgba(100,140,200,0.2)'}`, whiteSpace:'nowrap' }}>
                             {demande.urgence?.charAt(0).toUpperCase() + demande.urgence?.slice(1)}
                           </span>
                         </td>
 
-                        <td style={{ padding:'13px 14px', fontSize:12, color:'#5a7aaa' }}>
+                        <td className="gd-col-tech" style={{ padding:'13px 14px', fontSize:12, color:'#5a7aaa' }}>
                           {demande.technicien_nom
                             ? <div style={{ display:'flex', alignItems:'center', gap:6 }}>
                                 <div style={{ width:22, height:22, borderRadius:'50%', background:'linear-gradient(135deg,#10b981,#34d399)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:9, fontWeight:800, color:'#fff', flexShrink:0 }}>
@@ -543,51 +564,41 @@ export default function GestionDemandes() {
                             <Loader2 size={16} strokeWidth={2} color="#1d6ef5" style={{ animation:'spin 1s linear infinite' }} />
                           ) : (
                             <div style={{ display:'flex', gap:5, flexWrap:'wrap', alignItems:'center' }}>
-
-                              {/* ✅ Bouton Voir notes */}
+                              {/* Bouton Notes */}
                               <button
                                 onClick={() => setPanneauDemande(demande)}
                                 title={aNotes ? 'Voir les notes techniques' : 'Voir le détail'}
-                                style={{
-                                  display:'flex', alignItems:'center', gap:4,
-                                  background: aNotes ? 'rgba(29,110,245,0.1)' : 'rgba(190,215,255,0.25)',
-                                  color: aNotes ? '#1d6ef5' : '#7a9cc5',
-                                  border: aNotes ? '1px solid rgba(29,110,245,0.25)' : '1px solid rgba(190,215,255,0.45)',
-                                  padding:'5px 10px', borderRadius:8, fontSize:11, fontWeight:700,
-                                  cursor:'pointer', fontFamily:'inherit', whiteSpace:'nowrap', position:'relative',
-                                }}>
+                                style={{ display:'flex', alignItems:'center', gap:4, background:aNotes?'rgba(29,110,245,0.1)':'rgba(190,215,255,0.25)', color:aNotes?'#1d6ef5':'#7a9cc5', border:aNotes?'1px solid rgba(29,110,245,0.25)':'1px solid rgba(190,215,255,0.45)', padding:'5px 10px', borderRadius:8, fontSize:11, fontWeight:700, cursor:'pointer', fontFamily:'inherit', whiteSpace:'nowrap', position:'relative' }}>
                                 <StickyNote size={11} />
-                                <span className="btn-notes-label">Notes</span>
-                                {aNotes && (
-                                  <span style={{ width:6, height:6, borderRadius:'50%', background:'#1d6ef5', position:'absolute', top:-2, right:-2 }} />
-                                )}
+                                <span className="gd-btn-label">Notes</span>
+                                {aNotes && <span style={{ width:6, height:6, borderRadius:'50%', background:'#1d6ef5', position:'absolute', top:-2, right:-2 }} />}
                               </button>
 
                               {!demande.technicien_id && (
                                 <button onClick={() => setDemandeSelectionnee(demande.id)}
                                   style={{ display:'flex', alignItems:'center', gap:4, background:'rgba(29,110,245,0.08)', color:'#1d6ef5', border:'1px solid rgba(29,110,245,0.2)', padding:'5px 10px', borderRadius:8, fontSize:11, fontWeight:700, cursor:'pointer', fontFamily:'inherit', whiteSpace:'nowrap' }}>
                                   <UserCheck size={11} />
-                                  <span className="btn-action-label">Assigner</span>
+                                  <span className="gd-btn-label">Assigner</span>
                                 </button>
                               )}
                               {demande.statut === 'assigne' && (
                                 <button onClick={() => changerStatut(demande.id, 'en_cours')}
                                   style={{ display:'flex', alignItems:'center', gap:4, background:'rgba(59,130,246,0.08)', color:'#1d4ed8', border:'1px solid rgba(59,130,246,0.2)', padding:'5px 10px', borderRadius:8, fontSize:11, fontWeight:700, cursor:'pointer', fontFamily:'inherit', whiteSpace:'nowrap' }}>
                                   <Play size={11} />
-                                  <span className="btn-action-label">Démarrer</span>
+                                  <span className="gd-btn-label">Démarrer</span>
                                 </button>
                               )}
                               {demande.statut === 'en_cours' && (
                                 <button onClick={() => changerStatut(demande.id, 'termine')}
                                   style={{ display:'flex', alignItems:'center', gap:4, background:'rgba(16,185,129,0.08)', color:'#065f46', border:'1px solid rgba(16,185,129,0.2)', padding:'5px 10px', borderRadius:8, fontSize:11, fontWeight:700, cursor:'pointer', fontFamily:'inherit', whiteSpace:'nowrap' }}>
                                   <CheckCircle2 size={11} />
-                                  <span className="btn-action-label">Clôturer</span>
+                                  <span className="gd-btn-label">Clôturer</span>
                                 </button>
                               )}
                               {demande.statut === 'termine' && (
                                 <span style={{ fontSize:10.5, color:'#10b981', fontWeight:700, display:'flex', alignItems:'center', gap:4 }}>
                                   <CheckCheck size={12} strokeWidth={2.5} />
-                                  <span className="btn-action-label">Terminé</span>
+                                  <span className="gd-btn-label">Terminé</span>
                                 </span>
                               )}
                             </div>
@@ -600,7 +611,7 @@ export default function GestionDemandes() {
               </table>
             </div>
 
-            {/* ✅ PAGINATION */}
+            {/* ══ PAGINATION ══ */}
             {totalPages > 1 && (
               <div style={{ padding:'14px 20px', borderTop:'1px solid rgba(190,215,255,0.25)', display:'flex', alignItems:'center', justifyContent:'space-between', background:'rgba(255,255,255,0.5)', flexWrap:'wrap', gap:10 }}>
                 <span style={{ fontSize:11.5, color:'#7a9cc5', fontWeight:600 }}>
@@ -630,12 +641,9 @@ export default function GestionDemandes() {
         </div>
       </div>
 
-      {/* ✅ PANNEAU LATÉRAL NOTES */}
+      {/* ══ PANNEAU LATÉRAL NOTES ══ */}
       {panneauDemande && (
-        <PanneauDetail
-          demande={panneauDemande}
-          onFermer={() => setPanneauDemande(null)}
-        />
+        <PanneauDetail demande={panneauDemande} onFermer={() => setPanneauDemande(null)} />
       )}
 
       {/* ══ MODAL ASSIGNATION ══ */}
@@ -738,22 +746,15 @@ export default function GestionDemandes() {
       })()}
 
       <Toast toasts={toasts} />
-
-      <style>{`
-        @keyframes spin        { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
-        @keyframes apparaitre  { from{opacity:0;transform:translateX(32px) scale(0.95)} to{opacity:1;transform:translateX(0) scale(1)} }
-        @keyframes glisserDroite { from{opacity:0;transform:translateX(40px)} to{opacity:1;transform:translateX(0)} }
-        @keyframes fadeIn      { from{opacity:0} to{opacity:1} }
-
-        /* Masquer labels sur mobile pour gagner de la place */
-        @media (max-width: 860px) {
-          .filtre-label    { display: none !important; }
-        }
-        @media (max-width: 1100px) {
-          .btn-notes-label  { display: none !important; }
-          .btn-action-label { display: none !important; }
-        }
-      `}</style>
     </div>
   )
+}
+
+// Style helper th
+const thStyle = {
+  padding:'11px 14px', textAlign:'left',
+  fontSize:10, fontWeight:700, color:'#7a9cc5',
+  textTransform:'uppercase', letterSpacing:'0.6px',
+  borderBottom:'1px solid rgba(190,215,255,0.25)',
+  whiteSpace:'nowrap',
 }

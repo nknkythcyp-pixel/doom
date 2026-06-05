@@ -1,11 +1,12 @@
 // ============================================
-// GESTIONSERVICES.JSX — ✅ FULL RESPONSIVE
-// Fonctionne sur : téléphone, tablette, desktop, TV 4K
+// GESTIONSERVICES.JSX — ✅ RESPONSIVE (même pattern que TableauDeBord)
+// clamp() pour les espacements, classes CSS gs-* pour les media queries
+// Fonctionne sur : mobile, tablette, desktop, TV 4K
 // ============================================
 
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { ArrowLeft, Plus, Pencil, Power, Trash2, X, Image, PlusCircle, Minus, Menu } from 'lucide-react'
+import { ArrowLeft, Plus, Pencil, Power, Trash2, X, Image, PlusCircle, Minus } from 'lucide-react'
 import api from '../../services/api'
 
 const categories = ['Informatique', 'Réseau', 'Sécurité', 'Électricité', 'Domotique']
@@ -15,162 +16,7 @@ const formulaireVide = {
   dureeEstimee: '', photo: '', inclus: [],
 }
 
-/* ── CSS global injecté une seule fois ── */
-const STYLES = `
-  *, *::before, *::after { box-sizing: border-box; }
-
-  /* Input / select / textarea */
-  .gs-input {
-    width: 100%; padding: 11px 14px;
-    border: 1.5px solid rgba(226,236,248,0.9);
-    border-radius: 12px; font-size: 14px; outline: none;
-    font-family: inherit;
-    background: rgba(248,251,255,0.8);
-    color: #0f3767; transition: border-color .2s;
-  }
-  .gs-input:focus { border-color: #0066ff; }
-  .gs-label {
-    font-size: 12px; font-weight: 700;
-    color: #0f3767; display: block; margin-bottom: 7px;
-  }
-
-  /* ── HEADER ── */
-  .gs-header {
-    background: rgba(255,255,255,0.45);
-    backdrop-filter: blur(24px);
-    -webkit-backdrop-filter: blur(24px);
-    border-bottom: 1px solid rgba(255,255,255,0.7);
-    padding: 0 16px;
-    display: flex; align-items: center;
-    justify-content: space-between;
-    height: 64px;
-    position: sticky; top: 0; z-index: 50;
-    gap: 12px;
-  }
-
-  /* ── Tableau ── */
-  .gs-table-wrap {
-    background: rgba(255,255,255,0.65);
-    backdrop-filter: blur(20px);
-    border-radius: 20px; overflow: hidden;
-    border: 1px solid rgba(255,255,255,0.8);
-    box-shadow: 0 4px 24px rgba(15,55,103,0.06);
-  }
-  .gs-table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
-  .gs-table {
-    width: 100%; border-collapse: collapse;
-    min-width: 700px;
-  }
-  .gs-th {
-    padding: 13px 16px; text-align: left;
-    font-size: 10px; font-weight: 700; color: #8da2bb;
-    text-transform: uppercase; letter-spacing: 0.6px;
-    border-bottom: 1px solid rgba(226,236,248,0.8);
-    white-space: nowrap;
-  }
-  .gs-td { padding: 12px 16px; }
-
-  /* ── Cartes mobiles (< 640px) ── */
-  .gs-cards { display: none; flex-direction: column; gap: 12px; }
-  .gs-card {
-    background: rgba(255,255,255,0.8);
-    border-radius: 16px; padding: 16px;
-    border: 1px solid rgba(226,236,248,0.8);
-    box-shadow: 0 2px 12px rgba(15,55,103,0.06);
-  }
-
-  /* ── Modal ── */
-  .gs-modal-inner {
-    background: rgba(255,255,255,0.92);
-    backdrop-filter: blur(24px);
-    border-radius: 24px;
-    padding: 28px 24px;
-    width: calc(100% - 32px);
-    max-width: 560px;
-    border: 1px solid rgba(255,255,255,0.9);
-    box-shadow: 0 24px 64px rgba(15,55,103,0.15);
-    max-height: 90vh; overflow-y: auto;
-    margin: 16px;
-  }
-
-  /* ── Boutons actions ── */
-  .gs-actions { display: flex; gap: 6px; flex-wrap: wrap; }
-  .gs-btn-action {
-    display: flex; align-items: center; gap: 4px;
-    padding: 5px 10px; border-radius: 8px;
-    font-size: 11px; font-weight: 700;
-    cursor: pointer; font-family: inherit;
-    white-space: nowrap; border: 1px solid;
-  }
-
-  /* ── RESPONSIVE ── */
-
-  /* Très petit (< 360px) — watch, mini */
-  @media (max-width: 359px) {
-    .gs-header { height: 56px; padding: 0 10px; }
-    .gs-logo   { font-size: 16px !important; }
-    .gs-back-text { display: none !important; }
-    .gs-header-title { display: none !important; }
-    .gs-add-text    { display: none !important; }
-    .gs-modal-inner { padding: 18px 14px; border-radius: 18px; }
-    .gs-table-scroll { display: none; }
-    .gs-cards { display: flex !important; }
-    main { padding: 12px 10px !important; }
-  }
-
-  /* Mobile (360–639px) */
-  @media (max-width: 639px) {
-    .gs-table-scroll { display: none; }
-    .gs-cards { display: flex !important; }
-    main { padding: 16px 12px !important; }
-    .gs-header-title p { display: none; }
-    .gs-add-text { display: none; }
-    .gs-modal-inner { padding: 22px 16px; border-radius: 20px; }
-    .gs-back-text { display: none; }
-  }
-
-  /* Tablette portrait (640–767px) */
-  @media (min-width: 640px) and (max-width: 767px) {
-    .gs-table-scroll { display: none; }
-    .gs-cards { display: flex !important; }
-    main { padding: 20px 16px !important; }
-    .gs-add-text { display: none; }
-  }
-
-  /* Tablette paysage / petits desktops (768–1023px) */
-  @media (min-width: 768px) and (max-width: 1023px) {
-    .gs-header { padding: 0 24px; }
-    main { padding: 24px 20px !important; }
-  }
-
-  /* Desktop (1024px+) */
-  @media (min-width: 1024px) {
-    .gs-header { padding: 0 40px; height: 72px; }
-    main { padding: 32px 40px !important; }
-    .gs-modal-inner { padding: 36px; }
-  }
-
-  /* Grand écran / TV 4K */
-  @media (min-width: 2560px) {
-    .gs-header { height: 88px; }
-    .gs-logo   { font-size: 26px !important; }
-    .gs-th, .gs-td { padding: 18px 22px !important; font-size: 14px !important; }
-    main { padding: 48px 80px !important; max-width: 2400px; margin: 0 auto; }
-    .gs-modal-inner { max-width: 700px; padding: 48px; }
-  }
-`
-
-function inject(id, css) {
-  if (typeof document === 'undefined') return
-  if (document.getElementById(id)) return
-  const s = document.createElement('style')
-  s.id = id; s.textContent = css
-  document.head.appendChild(s)
-}
-
 export default function GestionServices() {
-  inject('gs-styles', STYLES)
-
   const navigate = useNavigate()
   const [services,         setServices]         = useState([])
   const [chargement,       setChargement]       = useState(true)
@@ -243,7 +89,8 @@ export default function GestionServices() {
   }
 
   if (chargement) return (
-    <div style={{ minHeight:'100vh', background:'linear-gradient(145deg,#dce9f8,#c5d9f2,#d4e4f7)', display:'flex', alignItems:'center', justifyContent:'center', fontFamily:"'DM Sans','Inter',sans-serif", padding:16 }}>
+    <div style={{ minHeight:'100vh', background:'linear-gradient(145deg,#dce9f8,#c5d9f2,#d4e4f7)', display:'flex', alignItems:'center', justifyContent:'center', fontFamily:"'Plus Jakarta Sans','DM Sans',sans-serif", padding:16 }}>
+      <style>{`@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap');`}</style>
       <div style={{ background:'rgba(255,255,255,0.6)', backdropFilter:'blur(20px)', borderRadius:20, padding:'32px 48px', textAlign:'center', border:'1px solid rgba(255,255,255,0.8)' }}>
         <div style={{ fontSize:32, marginBottom:10 }}>⏳</div>
         <p style={{ fontSize:14, color:'#6b8299', fontWeight:500, margin:0 }}>Chargement des services...</p>
@@ -253,19 +100,26 @@ export default function GestionServices() {
 
   // ── Carte mobile d'un service ──
   const ServiceCard = ({ service }) => (
-    <div className="gs-card">
+    <div style={{
+      background:'rgba(255,255,255,0.80)',
+      borderRadius:'clamp(12px,1.5vw,16px)',
+      padding:'clamp(14px,2vw,18px)',
+      border:'1px solid rgba(226,236,248,0.8)',
+      boxShadow:'0 2px 12px rgba(15,55,103,0.06)',
+      marginBottom:12,
+    }}>
       <div style={{ display:'flex', gap:12, marginBottom:12 }}>
         {service.photo ? (
           <img src={service.photo} alt={service.nom}
-            style={{ width:56, height:44, objectFit:'cover', borderRadius:8, border:'1px solid rgba(226,236,248,0.8)', flexShrink:0 }}
+            style={{ width:'clamp(48px,10vw,56px)', height:'clamp(38px,8vw,44px)', objectFit:'cover', borderRadius:8, border:'1px solid rgba(226,236,248,0.8)', flexShrink:0 }}
             onError={e => e.target.style.display='none'} />
         ) : (
-          <div style={{ width:56, height:44, background:'rgba(226,236,248,0.5)', borderRadius:8, display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
+          <div style={{ width:'clamp(48px,10vw,56px)', height:'clamp(38px,8vw,44px)', background:'rgba(226,236,248,0.5)', borderRadius:8, display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
             <Image size={16} color="#8da2bb" />
           </div>
         )}
         <div style={{ flex:1, minWidth:0 }}>
-          <div style={{ fontSize:14, fontWeight:800, color:'#0f3767', marginBottom:4 }}>{service.nom}</div>
+          <div style={{ fontSize:'clamp(13px,1.5vw,14px)', fontWeight:800, color:'#0f3767', marginBottom:4, overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{service.nom}</div>
           <div style={{ display:'flex', gap:6, flexWrap:'wrap' }}>
             <span style={{ fontSize:10, fontWeight:700, padding:'2px 10px', borderRadius:50, background:'rgba(99,102,241,0.1)', color:'#4338ca', border:'1px solid rgba(99,102,241,0.2)' }}>{service.categorie}</span>
             <span style={{ fontSize:10, fontWeight:700, padding:'2px 10px', borderRadius:50, background:service.actif?'rgba(16,185,129,0.12)':'rgba(148,163,184,0.12)', color:service.actif?'#059669':'#94a3b8', border:`1px solid ${service.actif?'rgba(16,185,129,0.3)':'rgba(148,163,184,0.3)'}` }}>
@@ -285,45 +139,157 @@ export default function GestionServices() {
         </span>
         {service.duree_estimee && <span style={{ fontSize:11, color:'#64748b' }}>{service.duree_estimee}</span>}
       </div>
-      <div className="gs-actions">
+      <div style={{ display:'flex', gap:6, flexWrap:'wrap' }}>
         <button onClick={() => ouvrirEdition(service)}
-          style={{ flex:1, justifyContent:'center', background:'rgba(59,130,246,0.1)', color:'#2563eb', borderColor:'rgba(59,130,246,0.25)' }}
-          className="gs-btn-action"><Pencil size={11} /> Modifier</button>
+          style={{ flex:1, display:'flex', alignItems:'center', justifyContent:'center', gap:4, background:'rgba(59,130,246,0.1)', color:'#2563eb', border:'1px solid rgba(59,130,246,0.25)', padding:'7px 10px', borderRadius:8, fontSize:11, fontWeight:700, cursor:'pointer', fontFamily:'inherit', whiteSpace:'nowrap' }}>
+          <Pencil size={11} /> Modifier
+        </button>
         <button onClick={() => toggleActif(service.id)}
-          style={{ flex:1, justifyContent:'center', background:service.actif?'rgba(251,146,60,0.1)':'rgba(16,185,129,0.1)', color:service.actif?'#c2410c':'#059669', borderColor:service.actif?'rgba(251,146,60,0.25)':'rgba(16,185,129,0.25)' }}
-          className="gs-btn-action"><Power size={11} /> {service.actif?'Désactiver':'Activer'}</button>
+          style={{ flex:1, display:'flex', alignItems:'center', justifyContent:'center', gap:4, background:service.actif?'rgba(251,146,60,0.1)':'rgba(16,185,129,0.1)', color:service.actif?'#c2410c':'#059669', border:`1px solid ${service.actif?'rgba(251,146,60,0.25)':'rgba(16,185,129,0.25)'}`, padding:'7px 10px', borderRadius:8, fontSize:11, fontWeight:700, cursor:'pointer', fontFamily:'inherit', whiteSpace:'nowrap' }}>
+          <Power size={11} /> {service.actif?'Désactiver':'Activer'}
+        </button>
         <button onClick={() => supprimerService(service.id)}
-          style={{ flex:1, justifyContent:'center', background:'rgba(239,68,68,0.1)', color:'#dc2626', borderColor:'rgba(239,68,68,0.25)' }}
-          className="gs-btn-action"><Trash2 size={11} /> Supprimer</button>
+          style={{ flex:1, display:'flex', alignItems:'center', justifyContent:'center', gap:4, background:'rgba(239,68,68,0.1)', color:'#dc2626', border:'1px solid rgba(239,68,68,0.25)', padding:'7px 10px', borderRadius:8, fontSize:11, fontWeight:700, cursor:'pointer', fontFamily:'inherit', whiteSpace:'nowrap' }}>
+          <Trash2 size={11} /> Supprimer
+        </button>
       </div>
     </div>
   )
 
   return (
-    <div style={{ minHeight:'100vh', background:'linear-gradient(145deg,#dce9f8 0%,#c5d9f2 50%,#d4e4f7 100%)', fontFamily:"'DM Sans','Inter',-apple-system,sans-serif" }}>
+    <div style={{ minHeight:'100vh', background:'linear-gradient(145deg,#dce9f8 0%,#c5d9f2 50%,#d4e4f7 100%)', fontFamily:"'Plus Jakarta Sans','DM Sans',-apple-system,sans-serif" }}>
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap');
+
+        /* ── Input / select / textarea ── */
+        .gs-input {
+          width:100%; padding:11px 14px;
+          border:1.5px solid rgba(226,236,248,0.9);
+          border-radius:12px; font-size:14px; outline:none;
+          font-family:inherit;
+          background:rgba(248,251,255,0.8);
+          color:#0f3767; transition:border-color .2s; box-sizing:border-box;
+        }
+        .gs-input:focus { border-color:#0066ff; }
+        .gs-label {
+          font-size:12px; font-weight:700;
+          color:#0f3767; display:block; margin-bottom:7px;
+        }
+
+        /* ── HEADER ── */
+        .gs-header {
+          background:rgba(255,255,255,0.52);
+          backdrop-filter:blur(24px);
+          -webkit-backdrop-filter:blur(24px);
+          border-bottom:1px solid rgba(255,255,255,0.7);
+          padding:0 clamp(16px,3vw,40px);
+          display:flex; align-items:center;
+          justify-content:space-between;
+          height:clamp(56px,7vw,72px);
+          position:sticky; top:0; z-index:50;
+          gap:12px;
+        }
+
+        /* ── Layout principal (même pattern tdb-grid) ── */
+        .gs-main { padding:clamp(16px,3vw,32px) clamp(16px,3vw,40px); }
+
+        /* ── Tableau (tablette/desktop) ── */
+        .gs-table-wrap {
+          background:rgba(255,255,255,0.76);
+          backdrop-filter:blur(20px);
+          border-radius:clamp(14px,2vw,20px);
+          overflow:hidden;
+          border:1px solid rgba(190,215,255,0.45);
+          box-shadow:0 3px 18px rgba(15,55,103,0.06);
+        }
+        .gs-table-scroll { overflow-x:auto; -webkit-overflow-scrolling:touch; }
+        .gs-table { width:100%; border-collapse:collapse; min-width:700px; }
+        .gs-th {
+          padding:clamp(10px,1.5vw,13px) clamp(12px,2vw,16px);
+          text-align:left; font-size:10px; font-weight:700; color:#8da2bb;
+          text-transform:uppercase; letter-spacing:0.6px;
+          border-bottom:1px solid rgba(190,215,255,0.4);
+          white-space:nowrap;
+        }
+        .gs-td { padding:clamp(10px,1.5vw,12px) clamp(12px,2vw,16px); }
+
+        /* ── Cartes (mobile) — masquées par défaut ── */
+        .gs-cards { display:none; flex-direction:column; }
+
+        /* ── Boutons actions ── */
+        .gs-btn-action {
+          display:flex; align-items:center; gap:4px;
+          padding:5px 10px; border-radius:8px;
+          font-size:11px; font-weight:700;
+          cursor:pointer; font-family:inherit;
+          white-space:nowrap; border:1px solid;
+        }
+        .gs-add-text { display:inline; }
+        .gs-back-text { display:inline; }
+
+        /* ── Modal ── */
+        .gs-modal-inner {
+          background:rgba(255,255,255,0.92);
+          backdrop-filter:blur(24px);
+          border-radius:clamp(18px,2.5vw,24px);
+          padding:clamp(22px,3vw,36px) clamp(18px,3vw,36px);
+          width:calc(100% - 32px);
+          max-width:560px;
+          border:1px solid rgba(255,255,255,0.9);
+          box-shadow:0 24px 64px rgba(15,55,103,0.15);
+          max-height:90vh; overflow-y:auto;
+          margin:16px;
+        }
+
+        /* ── RESPONSIVE : Tablette portrait (≤ 767px) ── */
+        @media (max-width: 767px) {
+          .gs-table-scroll { display:none; }
+          .gs-cards { display:flex !important; }
+          .gs-add-text { display:none; }
+        }
+
+        /* ── RESPONSIVE : Mobile (≤ 600px) ── */
+        @media (max-width: 600px) {
+          .gs-back-text { display:none; }
+          .gs-header-title p { display:none; }
+        }
+
+        /* ── RESPONSIVE : Très petit (≤ 360px) ── */
+        @media (max-width: 360px) {
+          .gs-header-title { display:none; }
+          .gs-logo { font-size:16px !important; }
+        }
+
+        /* ── TV 4K ── */
+        @media (min-width: 2560px) {
+          .gs-th, .gs-td { padding:18px 22px !important; font-size:14px !important; }
+          .gs-main { max-width:2400px; margin:0 auto; }
+          .gs-modal-inner { max-width:700px; }
+        }
+      `}</style>
 
       {/* ── HEADER ── */}
       <header className="gs-header">
-        <div style={{ display:'flex', alignItems:'center', gap:16, flexShrink:0 }}>
-          <div className="gs-logo" style={{ fontSize:20, fontWeight:900, color:'#0f3767', letterSpacing:'1px', flexShrink:0 }}>
+        <div style={{ display:'flex', alignItems:'center', gap:'clamp(10px,2vw,16px)', flexShrink:0 }}>
+          <div className="gs-logo" style={{ fontSize:'clamp(16px,2vw,20px)', fontWeight:900, color:'#0f3767', letterSpacing:'1px', flexShrink:0 }}>
             DOOM<span style={{ color:'#0066ff' }}>.</span>
           </div>
           <button onClick={() => navigate('/admin/dashboard')}
-            style={{ display:'flex', alignItems:'center', gap:6, background:'transparent', border:'none', color:'#6b8299', fontSize:13, fontWeight:600, cursor:'pointer', fontFamily:'inherit', padding:'6px 10px', borderRadius:8 }}>
+            style={{ display:'flex', alignItems:'center', gap:6, background:'transparent', border:'none', color:'#6b8299', fontSize:'clamp(11px,1.2vw,13px)', fontWeight:600, cursor:'pointer', fontFamily:'inherit', padding:'6px 10px', borderRadius:8 }}>
             <ArrowLeft size={15} />
             <span className="gs-back-text">Tableau de bord</span>
           </button>
         </div>
 
         <div className="gs-header-title" style={{ textAlign:'center', flexShrink:0 }}>
-          <h2 style={{ fontSize:16, fontWeight:800, color:'#0f3767', margin:0, whiteSpace:'nowrap' }}>Gestion des services</h2>
+          <h2 style={{ fontSize:'clamp(13px,1.5vw,16px)', fontWeight:800, color:'#0f3767', margin:0, whiteSpace:'nowrap' }}>Gestion des services</h2>
           <p style={{ fontSize:11, color:'#8da2bb', margin:'2px 0 0', fontWeight:500 }}>
             {services.length} services · {services.filter(s=>s.actif).length} actifs
           </p>
         </div>
 
         <button onClick={ouvrirAjout}
-          style={{ display:'flex', alignItems:'center', gap:7, background:'#0f2942', color:'#fff', border:'none', padding:'9px 18px', borderRadius:50, fontSize:13, fontWeight:800, cursor:'pointer', fontFamily:'inherit', boxShadow:'0 8px 24px rgba(15,41,66,0.25)', whiteSpace:'nowrap', flexShrink:0 }}
+          style={{ display:'flex', alignItems:'center', gap:7, background:'#0f2942', color:'#fff', border:'none', padding:'clamp(8px,1.2vw,10px) clamp(14px,2vw,20px)', borderRadius:50, fontSize:'clamp(11px,1.2vw,13px)', fontWeight:800, cursor:'pointer', fontFamily:'inherit', boxShadow:'0 8px 24px rgba(15,41,66,0.25)', whiteSpace:'nowrap', flexShrink:0 }}
           onMouseEnter={e => e.currentTarget.style.background='#0066ff'}
           onMouseLeave={e => e.currentTarget.style.background='#0f2942'}>
           <Plus size={15} />
@@ -332,9 +298,19 @@ export default function GestionServices() {
       </header>
 
       {/* ── MAIN ── */}
-      <main style={{ padding:'24px 16px' }}>
+      <main className="gs-main">
 
-        {/* ── Tableau (tablette / desktop) ── */}
+        {/* Titre (même style que TableauDeBord) */}
+        <div style={{ marginBottom:'clamp(16px,2.5vw,24px)' }}>
+          <p style={{ fontSize:10.5, fontWeight:700, color:'#0066ff', textTransform:'uppercase', letterSpacing:'1.8px', marginBottom:5, margin:'0 0 5px' }}>
+            Espace admin
+          </p>
+          <h1 style={{ fontSize:'clamp(20px,3.5vw,28px)', fontWeight:800, color:'#0f3767', letterSpacing:'-0.5px', margin:0 }}>
+            Gestion des services
+          </h1>
+        </div>
+
+        {/* ── Tableau (tablette/desktop) ── */}
         <div className="gs-table-wrap">
           <div className="gs-table-scroll">
             <table className="gs-table">
@@ -348,7 +324,7 @@ export default function GestionServices() {
               <tbody>
                 {services.map((service, i) => (
                   <tr key={service.id}
-                    style={{ borderBottom:i<services.length-1?'1px solid rgba(226,236,248,0.6)':'none', transition:'background .15s' }}
+                    style={{ borderBottom:i<services.length-1?'1px solid rgba(190,215,255,0.3)':'none', transition:'background .15s' }}
                     onMouseEnter={e => e.currentTarget.style.background='rgba(0,102,255,0.025)'}
                     onMouseLeave={e => e.currentTarget.style.background='transparent'}>
 
@@ -380,7 +356,7 @@ export default function GestionServices() {
                       </span>
                     </td>
                     <td className="gs-td">
-                      <div className="gs-actions">
+                      <div style={{ display:'flex', gap:6, flexWrap:'wrap' }}>
                         <button onClick={() => ouvrirEdition(service)} className="gs-btn-action" style={{ background:'rgba(59,130,246,0.1)', color:'#2563eb', borderColor:'rgba(59,130,246,0.25)' }}>
                           <Pencil size={11} /> Modifier
                         </button>
@@ -404,7 +380,7 @@ export default function GestionServices() {
           </div>
         </div>
 
-        {/* ── Cartes mobiles ── */}
+        {/* ── Cartes mobiles (visibles via CSS ≤ 767px) ── */}
         <div className="gs-cards">
           {services.length === 0 ? (
             <div style={{ padding:48, textAlign:'center', color:'#8da2bb', fontSize:14, background:'rgba(255,255,255,0.6)', borderRadius:16 }}>
@@ -419,13 +395,13 @@ export default function GestionServices() {
       {/* ════ MODAL ════ */}
       {modalOuvert && (
         <div
-          style={{ position:'fixed', inset:0, background:'rgba(15,23,42,0.4)', backdropFilter:'blur(8px)', display:'flex', alignItems:'center', justifyContent:'center', zIndex:100, padding:0, overflowY:'auto' }}
+          style={{ position:'fixed', inset:0, background:'rgba(15,23,42,0.4)', backdropFilter:'blur(8px)', display:'flex', alignItems:'center', justifyContent:'center', zIndex:100, overflowY:'auto' }}
           onClick={e => { if (e.target===e.currentTarget) setModalOuvert(false) }}
         >
           <div className="gs-modal-inner">
             {/* En-tête */}
             <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:22 }}>
-              <h3 style={{ fontSize:17, fontWeight:800, color:'#0f3767', margin:0 }}>
+              <h3 style={{ fontSize:'clamp(15px,2vw,17px)', fontWeight:800, color:'#0f3767', margin:0 }}>
                 {serviceEnEdition ? 'Modifier le service' : 'Ajouter un service'}
               </h3>
               <button onClick={() => setModalOuvert(false)} style={{ background:'rgba(0,0,0,0.05)', border:'none', borderRadius:'50%', width:32, height:32, cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center' }}>

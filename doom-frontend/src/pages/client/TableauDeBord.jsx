@@ -37,7 +37,7 @@ const iconeService = nom => {
 const navItems = [
   { id: 'dashboard', label: 'Tableau de bord', icone: LayoutDashboard, lien: null               },
   { id: 'demandes',  label: 'Mes demandes',    icone: ClipboardList,   lien: '/client/demandes' },
-  { id: 'messages',  label: 'Messages',        icone: MessageSquare,   lien: '/client/demandes' },
+  { id: 'messages',  label: 'Messages',        icone: MessageSquare,   lien: '/client/messages' },
   { id: 'profil',    label: 'Mon profil',      icone: User,            lien: '/client/profil'   },
 ]
 

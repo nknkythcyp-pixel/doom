@@ -3,19 +3,22 @@
 // Crée et exporte le pool de connexions
 // ============================================
 
+// ============================================
+// BASEDEDONNEES.JS — Connexion à MySQL
+// ============================================
+
 const mysql = require('mysql2')
 require('dotenv').config()
 
 // ── Création du pool de connexions ──
-// Un pool permet de gérer plusieurs connexions simultanées
 const pool = mysql.createPool({
-  host: process.env.DB_HOST,       // Adresse du serveur MySQL
-  user: process.env.DB_USER,       // Nom d'utilisateur
-  password: process.env.DB_PASSWORD, // Mot de passe
-  database: process.env.DB_NAME,   // Nom de la base de données
-  waitForConnections: true,        // Attendre si toutes les connexions sont occupées
-  connectionLimit: 10,             // Maximum 10 connexions simultanées
-  queueLimit: 0,                   // Pas de limite de file d'attente
+  host: process.env.DB_HOST,
+  user: process.env.DB_USER,
+  password: process.env.DB_PASSWORD,
+  database: process.env.DB_NAME,
+  waitForConnections: true,
+  connectionLimit: 5, // <--- C'EST ICI QU'IL FAUT METTRE 5
+  queueLimit: 0,
 })
 
 // ── Version avec promesses pour utiliser async/await ──
@@ -28,7 +31,7 @@ pool.getConnection((erreur, connexion) => {
     return
   }
   console.log('✅ Connexion à MySQL réussie')
-  connexion.release() // Libérer la connexion après le test
+  connexion.release() 
 })
 
 module.exports = poolPromesse
